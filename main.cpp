@@ -5,8 +5,9 @@
 #include <vector>
 using namespace std;
 
-#define getlinha cin.getline(linha,256)
-#define getspace cin.getline(linha,256,' ')
+#define getlinha; cin.getline(linha,256)
+#define getspace; cin.getline(linha,256,' ')
+#define getdoispontos; cin.getline(linha,256,':')
 
 typedef struct{
 	double x, y;
@@ -24,9 +25,9 @@ item  v[10000];
 char linha[256], filter[256];
 
 int get_num(){
-	getspace;
+	getdoispontos;
 	getlinha;
-	
+	cout << linha << endl;
 	int cont = 0;
 	for(int i=0; i<strlen(linha); i++){
 		if(linha[i]!=' '){
@@ -48,6 +49,7 @@ int main(){
 	max_time = get_num();
 	min_speed = get_num();
 	max_speed = get_num();
+	//cout << tam << " - " << n_itens << " - " << cap << " - " << max_time << " - " << min_speed << " - " << max_speed << endl;
 	getlinha;
 	getlinha;
 	int ind;
@@ -59,7 +61,7 @@ int main(){
 		getlinha;
 		p[ind].y = atof(linha);
 	}
-	
+	getlinha;
 	for(int i=1; i<=n_itens; i++){
 		getspace;
 		ind = atoi(linha);
@@ -67,10 +69,10 @@ int main(){
 		v[ind].valor = atoi(linha);
 		getspace;
 		v[ind].peso = atoi(linha);
-		getspace;
+		getlinha;
 		itens_ind[atoi(linha)].push_back(ind);
 	}
-	
+	/*
 	for(int i=1; i<=tam; i++){
 		cout << i << " : " << p[i].x << '-' << p[i].y << endl;
 	}
@@ -89,6 +91,6 @@ int main(){
 			cout << itens_ind[i][j] << " ";
 		cout << endl;
 	}
-	
+	*/
 	return 0;
 }
