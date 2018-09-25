@@ -3,11 +3,13 @@
 #include <cstring>
 #include <cstdlib>
 #include <vector>
+#include <fstream>
+#include <cmath>
 using namespace std;
 
-#define getlinha; cin.getline(linha,256)
-#define getspace; cin.getline(linha,256,' ')
-#define getdoispontos; cin.getline(linha,256,':')
+#define getlinha      prob.getline(linha,256)
+#define getespaco     prob.getline(linha,256,' ')
+#define getdoispontos prob.getline(linha,256,':')
 
 typedef struct{
 	double x, y;
@@ -17,17 +19,27 @@ typedef struct{
 	int valor, peso;
 }item;
 
-int tam, n_itens, cap, max_time, min_speed, max_speed;
-vector<int> itens_ind[1000];
-int dist[1000][1000];
-ponto p[1000];
-item  v[10000];
+//arquivo do problema e de solução
+fstream prob, sol;
+
+//parâmetros do problema
+int tam, n_itens, cap;
+double max_time, min_speed, max_speed, speed_atual;
+vector<int> itens_ind[1001];
+int dist[1001][1001];
+ponto p[1001];
+item  v[10001];
+vector<int> plano_rota, plano_coleta;
+int score=0, peso=0;
+double tempo = 0.0, reducao_vel;
+bool inviavel = false;
+
+//cursores para leitura dos arquivos
 char linha[256], filter[256];
 
 int get_num(){
 	getdoispontos;
 	getlinha;
-	cout << linha << endl;
 	int cont = 0;
 	for(int i=0; i<strlen(linha); i++){
 		if(linha[i]!=' '){
@@ -39,8 +51,7 @@ int get_num(){
 	return atoi(filter);
 }
 
-int main(){
-	
+void le_prob(){
 	getlinha;
 	getlinha;
 	tam = get_num();
@@ -49,29 +60,118 @@ int main(){
 	max_time = get_num();
 	min_speed = get_num();
 	max_speed = get_num();
-	//cout << tam << " - " << n_itens << " - " << cap << " - " << max_time << " - " << min_speed << " - " << max_speed << endl;
 	getlinha;
 	getlinha;
 	int ind;
 	for(int i=1; i<=tam; i++){
-		getspace;
-		ind = atoi(linha)
-		getspace;
+		getespaco;
+		ind = atoi(linha);
+		getespaco;
 		p[ind].x = atof(linha);
 		getlinha;
 		p[ind].y = atof(linha);
 	}
 	getlinha;
 	for(int i=1; i<=n_itens; i++){
-		getspace;
+		getespaco;
 		ind = atoi(linha);
-		getspace;
+		getespaco;
 		v[ind].valor = atoi(linha);
-		getspace;
+		getespaco;
 		v[ind].peso = atoi(linha);
 		getlinha;
 		itens_ind[atoi(linha)].push_back(ind);
 	}
+}
+
+void le_sol(){
+	char c;
+	int i = 0;
+	c = sol.get(); c = sol.get();
+	while(c!=']'){
+		if(c!=','){
+			filter[i] = c;
+			i++;
+		}
+		else{
+			filter[i] = '\0';
+			plano_rota.push_back(atoi(filter));
+			i = 0;
+		}
+		c = sol.get();
+	}
+	filter[i] = '\0';
+	plano_rota.push_back(atoi(filter));
+	i = 0;
+	c = sol.get(); c = sol.get(); c = sol.get();
+	while(c!=']'){
+		if(c!=','){
+			filter[i] = c;
+			i++;
+		}
+		else{
+			filter[i] = '\0';
+			plano_coleta.push_back(atoi(filter));
+			i = 0;
+		}
+		c = sol.get();
+	}
+	filter[i] = '\0';
+	plano_coleta.push_back(atoi(filter));
+
+}
+
+void calcula_dist(){
+	double real;
+	int inteiro;
+	for(int i=1; i<=tam; i++)
+		for(int j=1; j<=tam; j++){
+			real = sqrt((p[i].x-p[j].x)*(p[i].x-p[j].x)+(p[i].y-p[j].y)*(p[i].y-p[j].y));
+			inteiro = floor(real);
+			if(real==inteiro)
+				dist[i][j] = inteiro;
+			else
+				dist[i][j] = inteiro+1;
+		}
+}
+
+void verifica_solucao(){
+
+}
+
+
+int main(int argc, char *argv[ ]){
+	
+	prob.open(argv[1], fstream::in);
+	sol.open(argv[2], fstream::in);
+	fstream dis;
+	
+	le_prob();
+	le_sol();
+	prob.close();
+	sol.close();
+	calcula_dist();
+	reducao_vel = (max_speed-min_speed)/cap;
+	verifica_solucao();
+	if(inviavel)
+		cout << "Inviavel\n";
+	else
+		cout << score << " - " << tempo;
+	/*
+	dis.open("saida.txt", fstream::out);
+	for(int i=1; i<=tam; i++){
+		for(int j=1; j<=tam; j++)
+			dis << dist[i][j] << " ";
+		dis << endl;
+	}
+	/*
+	for(int i=0; i<plano_rota.size(); i++)
+		cout << plano_rota[i] << " -> ";
+	cout << endl;
+
+	for(int i=0; i<plano_coleta.size(); i++)
+		cout << plano_coleta[i] << " -> ";
+	cout << endl;
 	/*
 	for(int i=1; i<=tam; i++){
 		cout << i << " : " << p[i].x << '-' << p[i].y << endl;
@@ -90,7 +190,7 @@ int main(){
 		for(int j=0; j<itens_ind[i].size(); j++)
 			cout << itens_ind[i][j] << " ";
 		cout << endl;
-	}
-	*/
+	}*/
+	
 	return 0;
 }
