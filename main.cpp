@@ -16,7 +16,7 @@ typedef struct{
 }ponto;
 
 typedef struct{
-	int valor, peso;
+	double valor, peso;
 }item;
 
 //arquivo do problema e de solução
@@ -37,7 +37,7 @@ bool inviavel = false;
 //cursores para leitura dos arquivos
 char linha[256], filter[256];
 
-int get_num(){
+int get_int(){
 	getdoispontos;
 	getlinha;
 	int cont = 0;
@@ -51,15 +51,46 @@ int get_num(){
 	return atoi(filter);
 }
 
+double get_double(){
+	getdoispontos;
+	getlinha;
+	int ind = -1;
+	double decimal = 1.0;
+	double num=0.0;
+	for(int i=0; i<strlen(linha); i++)
+		if(linha[i]=='.') ind = i;
+	if(ind==-1){
+		ind = strlen(linha);
+	}
+
+	for(int i=ind-1; i>=0; i--){
+		if(linha[i]!=' '){
+			num += (int(linha[i])-48)*decimal;
+			
+			decimal*=10.0;
+		}
+	}
+	decimal = 0.1;
+	for(int i=ind+1; i<strlen(linha); i++){
+		if(linha[i]!=' '){
+			num += (int(linha[i])-48)*decimal;
+			decimal/=10.0;
+		}
+	}
+
+	return num;
+}
+
 void le_prob(){
 	getlinha;
 	getlinha;
-	tam = get_num();
-	n_itens = get_num();
-	cap = get_num();
-	max_time = get_num();
-	min_speed = get_num();
-	max_speed = get_num();
+	tam = get_int();
+	n_itens = get_int();
+	cap = get_int();
+	max_time = get_double();
+	min_speed = get_double();
+	
+	max_speed = get_double();
 	getlinha;
 	getlinha;
 	int ind;
@@ -136,7 +167,52 @@ void calcula_dist(){
 }
 
 void verifica_solucao(){
-
+	tempo+=dist[1][plano_rota[0]]/speed_atual;
+	for(int i=1; i<plano_rota.size(); i++){
+		if(tempo>max_time){
+			inviavel = true;
+			return;
+		}
+		for(int j=0; j<plano_coleta.size(); j++){
+			for(int k=0; k<itens_ind[plano_rota[i-1]].size(); k++){
+				if(plano_coleta[j]==itens_ind[plano_rota[i-1]][k]){
+					peso+=v[plano_coleta[j]].peso;
+					score+=v[plano_coleta[j]].valor;
+					if(peso>cap){
+						inviavel = true;
+						return;
+					}
+					speed_atual-= v[plano_coleta[j]].peso*reducao_vel;
+				}
+			}
+		}
+		tempo+=dist[plano_rota[i-1]][plano_rota[i]]/speed_atual;
+	}
+	if(tempo>max_time){
+		inviavel = true;
+		return;
+	}
+	
+	for(int j=0; j<plano_coleta.size(); j++){
+		for(int k=0; k<itens_ind[plano_rota[plano_rota.size()-1]].size(); k++){
+			if(plano_coleta[j]==itens_ind[plano_rota[plano_rota.size()-1]][k]){
+				peso+=v[plano_coleta[j]].peso;
+				score+=v[plano_coleta[j]].valor;
+				if(peso>cap){
+					inviavel = true;
+					return;
+				}
+				speed_atual-= v[plano_coleta[j]].peso*reducao_vel;
+			}
+		}
+	}
+	
+	tempo+=dist[plano_rota[plano_rota.size()-1]][tam]/speed_atual;
+	
+	if(tempo>max_time){
+		inviavel = true;
+		return;
+	}
 }
 
 
@@ -152,6 +228,7 @@ int main(int argc, char *argv[ ]){
 	sol.close();
 	calcula_dist();
 	reducao_vel = (max_speed-min_speed)/cap;
+	speed_atual = max_speed;
 	verifica_solucao();
 	if(inviavel)
 		cout << "Inviavel\n";
