@@ -5,6 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <cmath>
+#include <iomanip>
 using namespace std;
 
 #define getlinha      prob.getline(linha,256)
@@ -31,7 +32,7 @@ ponto p[1001];
 item  v[10001];
 vector<int> plano_rota, plano_coleta;
 int score=0, peso=0;
-double tempo = 0.0, reducao_vel;
+long double tempo = 0.0, reducao_vel;
 bool inviavel = false;
 
 //cursores para leitura dos arquivos
@@ -225,15 +226,15 @@ int main(int argc, char *argv[ ]){
 	le_prob();
 	le_sol();
 	prob.close();
-	sol.close();
+	sol.close();	
 	calcula_dist();
 	reducao_vel = (max_speed-min_speed)/cap;
-	speed_atual = max_speed;
+	speed_atual = max_speed;	
 	verifica_solucao();
 	if(inviavel)
 		cout << "Inviavel\n";
 	else
-		cout << score << " - " << tempo;
+		cout << fixed << setprecision(10) << score << " - " << tempo;
 	/*
 	dis.open("saida.txt", fstream::out);
 	for(int i=1; i<=tam; i++){
